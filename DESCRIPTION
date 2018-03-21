@@ -1,0 +1,9 @@
+Package: Viridot
+Type: Package
+Title: Viridot: An automated virus plaque counter
+Version: 1.0
+Date: 2018-03-20
+Author: Katzelnick et al.
+Maintainer: Leah Katzelnick <leah.katzelnick@berkeley.edu>
+Description: See our paper (coming soon).
+License: GNU General Public License version 3
