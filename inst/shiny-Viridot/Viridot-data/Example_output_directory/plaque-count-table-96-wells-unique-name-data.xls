@@ -1,0 +1,7 @@
+""	"sample 1"	"sample 2"	"sample 3"	"sample 4"
+"serum.name"	"SR-1"	"SR-2"	"SR-3"	"SR-4"
+"virus.name"	"Virus-1"	"Virus-1"	"Virus-1"	"Virus-1"
+"neut.titer"	"72"	NA	"63"	"<10"
+"lower 95% ci neut. titer"	"41"	NA	"39"	NA
+"upper 95% ci neut. titer"	"125"	NA	"123"	NA
+"slope"	"-5.2"	NA	"-3.2"	NA
