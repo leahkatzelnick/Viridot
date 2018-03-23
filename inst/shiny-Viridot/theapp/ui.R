@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: March, 2018",
+    title = "Viridot: March 22, 2018",
     
     tabPanel(
       "Plaque counter",
@@ -513,6 +513,13 @@ shinyUI(
                      "Final serum/antibody dilution",
                      20480)
       ),
+      
+      tags$div(
+        title = "Number of decimal places to print for titers/CI/slope: Here, you can indicate whether you want your titers/CI/slope rounded with no decimal places (0) or with some number of decimal places (e.g. 2).  Make sure to specify a value greater than 0 if you are studying monoclonal antibodies at concentrations less than 1.",
+        numericInput("sig.figs.dil",
+                     "Number of decimal places to print for titers/CI/slope",
+                     2)
+      ),     
       
       tags$div(
         title = "X-axis label: Here, you can input the relevant X-axis label for your plot, depending on whether you are titrating a serum or an antibody.",

@@ -1092,7 +1092,7 @@ shinyServer(function(input, output, session) {
       )
     
     output$table_dilutions <-
-      renderTable(cbind(1:length(dilutions), dilutions), colnames = FALSE)
+      renderTable(cbind(1:length(dilutions), dilutions), colnames = FALSE,digits=input$sig.figs.dil)
     
   })
   
@@ -1386,15 +1386,15 @@ shinyServer(function(input, output, session) {
         
         # dilutions for that titration
         logdil <-
-          rep(log(dilutions), times = dim(plaques.per.sample)[2])
+          rep((dilutions), times = dim(plaques.per.sample)[2])
         
         if (logdil[length(logdil)] > logdil[1])
           set.of.dil.values <-
-          round(seq(logdil[1] - 5, logdil[length(logdil)] + 5, .01), digits = 2)
+          exp(round(seq(log(logdil[1]) - 5, log(logdil)[length(logdil)] + 5, .01), digits = 2))
         
         if (logdil[length(logdil)] < logdil[1])
           set.of.dil.values <-
-          rev(round(seq(logdil[length(logdil)] - 5, logdil[1] + 5, .01), digits = 2))
+          exp(rev(round(seq(log(logdil)[length(logdil)] - 5, log(logdil[1]) + 5, .01), digits = 2)))
 
         M <- NULL
         
@@ -1549,7 +1549,7 @@ shinyServer(function(input, output, session) {
         axis(
           1,
           log(dilutions),
-          round((dilutions), digits = 1),
+          round((dilutions), digits = input$sig.figs.dil),
           col.ticks = "grey",
           cex.axis = 2,
           las = 2
@@ -1614,6 +1614,7 @@ shinyServer(function(input, output, session) {
                 data.frame(x = set.of.dil.values)
               ))
             
+
             reduction.at.value <-
               which(round(predicted.titercut[, "Prediction"], digits = 2) == dil.values)
             if (length(reduction.at.value) < 1) {
@@ -1629,8 +1630,8 @@ shinyServer(function(input, output, session) {
 
             else {
               titer <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value))]), digits =
+                        input$sig.figs.dil)
 
               if (is.numeric(titer) & titer < min(low.titer.limit, upper.titer.limit, na.rm = T))   titer[titer < min(low.titer.limit, upper.titer.limit, na.rm = T)] <-
                 paste("<",
@@ -1650,8 +1651,8 @@ shinyServer(function(input, output, session) {
 
               if (length(reduction.at.value.low) > 0)
                 table.of.titers[5, i] <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value.low))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value.low))]), digits =
+                        input$sig.figs.dil)
               
               if (length(reduction.at.value.low) == 0) {
                 table.of.titers[5, i] <-   "ci too large"
@@ -1664,8 +1665,8 @@ shinyServer(function(input, output, session) {
               
               if (length(reduction.at.value.upper) > 0)
                 table.of.titers[4, i] <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value.upper))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value.upper))]), digits =
+                        input$sig.figs.dil)
               
               
               
@@ -1675,7 +1676,7 @@ shinyServer(function(input, output, session) {
               
               
               table.of.titers[6, i] <-
-                round(logisticurve$coefficients["b:(Intercept)"], digits = 1)
+                round(logisticurve$coefficients["b:(Intercept)"], digits = input$sig.figs.dil)
               
               logist.LOW.ci <- predicted.titercut[, "Lower"]
               logist.HIGH.ci <- predicted.titercut[, "Upper"]
@@ -1683,7 +1684,7 @@ shinyServer(function(input, output, session) {
 
                 
               x.logis.poly <-
-                c((set.of.dil.values), rev(set.of.dil.values))
+                c(log(set.of.dil.values), rev(log(set.of.dil.values)))
               
               
               y.logis.poly <- c(logist.LOW.ci, rev(logist.HIGH.ci))
@@ -1692,7 +1693,7 @@ shinyServer(function(input, output, session) {
               if (logdil[length(logdil)] < logdil[1]) {
 
                 x.logis.poly <-
-                  c(rev(set.of.dil.values), (set.of.dil.values))
+                  c(rev(log(set.of.dil.values)), log(set.of.dil.values))
 
                 y.logis.poly <-
                   c(rev(logist.LOW.ci),(logist.HIGH.ci))
@@ -1724,7 +1725,7 @@ shinyServer(function(input, output, session) {
                       border = NA)
               
               lines(
-                set.of.dil.values,
+                log(set.of.dil.values),
                 predicted.titercut[, "Prediction"],
                 col = vircoldark,
                 lwd = 3
@@ -1775,7 +1776,7 @@ shinyServer(function(input, output, session) {
           
           these.dilutions <-
             dilutions[which(included.plaques %in% average.per.dil)]
-          log.these.dil <- log(these.dilutions)
+          log.these.dil <- (these.dilutions)
           
           steve.titer <- NA
           steve.titer.confint <- c(NA, NA)
@@ -1783,7 +1784,7 @@ shinyServer(function(input, output, session) {
           
 
           if (length((included.plaques)) < 1) {
-            steve.titer <- "<10"
+            steve.titer <- "outside limit of detection"
             
           }
           
@@ -1802,7 +1803,7 @@ shinyServer(function(input, output, session) {
               steve.curve <-
                 mean(c(log.these.dil[length(included.plaques)], log.these.dil[length(included.plaques) -
                                                                                 1]))
-              steve.titer <- round(exp(steve.curve))
+              steve.titer <- round((steve.curve),digits=input$sig.figs.dil)
               steve.titer.confint <- c(NA, NA)
               steve.titer.slope <- NA
               
@@ -1835,8 +1836,8 @@ shinyServer(function(input, output, session) {
                 next
               
               steve.titer <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value))]), digits =
+                        input$sig.figs.dil)
 
              if (is.numeric(steve.titer) & steve.titer < min(low.titer.limit, upper.titer.limit, na.rm =
                                    T)) steve.titer[steve.titer < min(low.titer.limit, upper.titer.limit, na.rm =
@@ -1854,8 +1855,8 @@ shinyServer(function(input, output, session) {
                 which(round(predicted.titercut.steve[, "Lower"], digits = 2) == dil.values)
               if (length(reduction.at.value.low) > 0)
                 steve.titer.confint[2] <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value.low))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value.low))]), digits =
+                        input$sig.figs.dil)
               
               if (length(reduction.at.value.low) == 0) {
                 steve.titer.confint[2] <-   "ci too large"
@@ -1866,15 +1867,15 @@ shinyServer(function(input, output, session) {
               if (length(reduction.at.value.upper) > 0)
                 
                 steve.titer.confint[1] <-
-                round(exp(set.of.dil.values[floor(median(reduction.at.value.upper))]), digits =
-                        0)
+                round((set.of.dil.values[floor(median(reduction.at.value.upper))]), digits =
+                        input$sig.figs.dil)
               
               if (length(reduction.at.value.upper) == 0) {
                 steve.titer.confint[1] <-   "ci too large"
               }
               
               steve.titer.slope <-
-                round(steve.curve$coefficients["b:(Intercept)"], digits = 1)
+                round(steve.curve$coefficients["b:(Intercept)"], digits = input$sig.figs.dil)
               
               
               
@@ -1888,7 +1889,7 @@ shinyServer(function(input, output, session) {
                   predicted.titercut.steve[, "Upper"]
                 
                 x.logis.poly <-
-                  c((set.of.dil.values), rev(set.of.dil.values))
+                  c(log(set.of.dil.values), rev(log(set.of.dil.values)))
                 
                   
                 y.logis.poly <-
@@ -1897,7 +1898,7 @@ shinyServer(function(input, output, session) {
                 if (logdil[length(logdil)] < logdil[1]) {
                   
                   x.logis.poly <-
-                    c(rev(set.of.dil.values), (set.of.dil.values))
+                    c(rev(log(set.of.dil.values)), log(set.of.dil.values))
                   
                   y.logis.poly <-
                     c(rev(logist.LOW.ci),(logist.HIGH.ci))
@@ -1925,7 +1926,7 @@ shinyServer(function(input, output, session) {
                         border = NA)
                 
                 lines(
-                  set.of.dil.values,
+                  log(set.of.dil.values),
                   predicted.titercut.steve[, "Prediction"],
                   col = vircoldark,
                   lwd = 3
