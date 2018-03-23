@@ -26,7 +26,7 @@ Open RStudio and type into the console:
 install.packages("~/Downloads/Viridot", repos = NULL, type="source")
 ```
 
-R will ask if you want to install various dependencies for Viridot: make sure you type 'y' to indicate yes.  Also, make sure to replace the "~/Downloads/" section with wherever you have saved the Viridot package on your computer. For instance, if you have saved Viridot to your Desktop, you tell R to look in the home directory (~) in the folder (/) called Desktop, and then in the Desktop folder (/), there is a folder called Viridot:
+R will ask if you want to install various dependencies for Viridot: make sure you type 'y' to indicate yes.  Also, make sure to replace the "\~/Downloads/" section with wherever you have saved the Viridot package on your computer. For instance, if you have saved Viridot to your Desktop, you tell R to look in the home directory (\~) in the folder (/) called Desktop, and then in the Desktop folder (/), there is a folder called Viridot:
 
 ```
 install.packages("~/Desktop/Viridot", repos = NULL, type="source")
