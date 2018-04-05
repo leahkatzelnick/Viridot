@@ -1381,8 +1381,7 @@ shinyServer(function(input, output, session) {
           }
           
         }
-        print("test0")
-        
+
         if (failhere == TRUE)
           
           next
@@ -1397,11 +1396,7 @@ shinyServer(function(input, output, session) {
         
         dilutions <- (dilutions[1:dim(plaques.per.sample)[1]])
  
-        print(dilutions)
-        print(dim(plaques.per.sample)[1])
-        
-        print("test1")
-        
+  
         plaque.counts <- c(plaques.per.sample)
         
         # dilutions for that titration
