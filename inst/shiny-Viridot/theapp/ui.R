@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# March 20, 2018: User interface for Viridot
+# April 4, 2018: User interface for Viridot
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: March 22, 2018",
+    title = "Viridot: April 4, 2018",
     
     tabPanel(
       "Plaque counter",
@@ -515,10 +515,10 @@ shinyUI(
       ),
       
       tags$div(
-        title = "Number of decimal places to print for titers/CI/slope: Here, you can indicate whether you want your titers/CI/slope rounded with no decimal places (0) or with some number of decimal places (e.g. 2).  Make sure to specify a value greater than 0 if you are studying monoclonal antibodies at concentrations less than 1.",
+        title = "Number of decimal places to print for titers/CI/slope: Here, you can indicate whether you want your titers/CI/slope rounded with no decimal places (0) or with some number of decimal places (e.g. 2).  Make sure to specify a value greater than 0 if you are studying monoclonal antibodies at concentrations less than 1. Slope printed as this value plus two decimal places. Requesting too many decimal places will slow down the program.",
         numericInput("sig.figs.dil",
                      "Number of decimal places to print for titers/CI/slope",
-                     2)
+                     0)
       ),     
       
       tags$div(
@@ -549,7 +549,7 @@ shinyUI(
       tags$div(
         title = "LID Statistical Web Tools plaque reduction estimation method?: Some researchers use the LID Statistical Web Tools plaque reduction tool: https://exon.niaid.nih.gov/plaquereduction/ (details on this method are provided on the website by clicking beneath the title LID Statistical Web Tools on that website). We provide an approximation of this tool. This can be turned on by selecting TRUE.",
         selectInput(
-          "steve.titer.estimation",
+          "NIH.titer.estimation",
           "LID Statistical Web Tools PRNT generator method?",
           selected = "FALSE",
           choices = c("TRUE", "FALSE")
