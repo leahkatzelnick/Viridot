@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# April 4, 2018: User interface for Viridot
+# April 6, 2018: User interface for Viridot
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: April 4, 2018",
+    title = "Viridot: April 6, 2018",
     
     tabPanel(
       "Plaque counter",
@@ -515,7 +515,7 @@ shinyUI(
       ),
       
       tags$div(
-        title = "Number of decimal places to print for titers/CI/slope: Here, you can indicate whether you want your titers/CI/slope rounded with no decimal places (0) or with some number of decimal places (e.g. 2).  Make sure to specify a value greater than 0 if you are studying monoclonal antibodies at concentrations less than 1. Slope printed as this value plus two decimal places. Requesting too many decimal places will slow down the program.",
+        title = "Number of decimal places to print for titers/CI/slope: Here, you can indicate whether you want your titers/CI/slope rounded with no decimal places (0) or with some number of decimal places (e.g. 2).  Make sure to specify a value greater than 0 if you are studying monoclonal antibodies at concentrations less than 1. Slope printed as this value plus two decimal places.",
         numericInput("sig.figs.dil",
                      "Number of decimal places to print for titers/CI/slope",
                      0)
@@ -534,13 +534,13 @@ shinyUI(
       
       
       tags$div(
-        title = "Lower titer limit: The limit of your neutralization curve may be different from your assay limit of detection. For instance, you may want to estimate the PRNT50 value down to a serum dilution of 1:5, but you only titrated antisera with a starting dilution of 1:10. You can put serum dilutions/antibody concentrations within or outside (maximum of 32-fold difference) of the range indicated in 'Show serum dilutions selected'.",
+        title = "Lower titer limit: The limit of your neutralization curve may be different from your assay limit of detection. For instance, you may want to estimate the PRNT50 value down to a serum dilution of 1:5, but you only titrated antisera with a starting dilution of 1:10. You can put serum dilutions/antibody concentrations within or outside (maximum of 100-fold difference) of the range indicated in 'Show serum dilutions selected'.",
         numericInput("low.titer.limit",
                      "Lower titer limit",
                      10)
       ),
       tags$div(
-        title = "Upper titer limit: The limit of your neutralization curve may be different from your assay limit of detection. For instance, you may want to estimate the PRNT50 value above the final serum dilution indicated, e.g. 1:40960. You can put serum dilutions/antibody concentrations within or outside (maximum of 32-fold difference) of the range indicated in Show serum dilutions selected.",
+        title = "Upper titer limit: The limit of your neutralization curve may be different from your assay limit of detection. For instance, you may want to estimate the PRNT50 value above the final serum dilution indicated, e.g. 1:40960. You can put serum dilutions/antibody concentrations within or outside (maximum of 100-fold difference) of the range indicated in Show serum dilutions selected.",
         numericInput("upper.titer.limit",
                      "Upper titer limit",
                      20480)

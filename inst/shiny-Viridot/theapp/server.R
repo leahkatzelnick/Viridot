@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# April 4, 2018: Server for the R plaque counter in Shiny
+# April 6, 2018: Server for the R plaque counter in Shiny
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 # for importing/exporting files and saving directory/folder names in shiny
@@ -54,9 +54,9 @@ convert.saturation <- function(picture, print = "saturation") {
   colmat <- rbind(red, green, blue)
   colhsv <- rgb2hsv(colmat)
   
-  hue <- matrix(colhsv[1,], size, size)
-  saturation <- matrix(colhsv[2,], size, size)
-  value <- matrix(colhsv[3,], size, size)
+  hue <- matrix(colhsv[1, ], size, size)
+  saturation <- matrix(colhsv[2, ], size, size)
+  value <- matrix(colhsv[3, ], size, size)
   
   if (print == "saturation")
     return(saturation)
@@ -73,7 +73,7 @@ convert.saturation <- function(picture, print = "saturation") {
 cir.cut <- function (image,
                      radiuscut = 40,
                      insert.value = 0) {
-  x <- length(image[1,]) / 2
+  x <- length(image[1, ]) / 2
   y <- x
   nv <- x * 2
   radius <- x - radiuscut
@@ -99,13 +99,45 @@ cir.cut <- function (image,
     circlecut.image[thesex, allna] <- insert.value
   }
   
-  circlecut.image[c(1:radiuscut, (nv - radiuscut):nv),] <-
+  circlecut.image[c(1:radiuscut, (nv - radiuscut):nv), ] <-
     insert.value
   
   
   return(circlecut.image)
   
 }
+
+
+
+
+
+#~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+# Linear approximation for estimating curve
+#~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+estimate.x.dose.value <- function(predicted.v,
+                                  dilvalues.v,
+                                  set.of.dil.values.v) {
+  predicted.v.sub <- predicted.v
+  ind.min.1 <-  which.min(abs(predicted.v.sub - dilvalues.v))
+  predicted.v.sub[ind.min.1] <- 9999999
+  ind.min.2 <-  which.min(abs(predicted.v.sub - dilvalues.v))
+  
+  x.y.pred <-
+    data.frame(set.of.dil.values.v, predicted.v)[c(ind.min.1, ind.min.2), ]
+  
+  M.sl = (x.y.pred$predicted.v[2] - x.y.pred$predicted.v[1]) /
+    (x.y.pred$set.of.dil.values.v[2] - x.y.pred$set.of.dil.values.v[1])
+  
+  B.sl <-
+    x.y.pred$predicted.v[1] - M.sl * x.y.pred$set.of.dil.values.v[1]
+  # B.sl <- x.y.pred$predicted.v[2] - M.sl*x.y.pred$set.of.dil.values.v[2]
+  
+  return((dilvalues.v - B.sl) / M.sl)
+  
+}
+
+
+
 
 
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
@@ -1299,8 +1331,8 @@ shinyServer(function(input, output, session) {
           "upper 95% ci neut. titer",
           "slope"
         )
-      table.of.titers[1, ] <- paste(serum.names, sep = "")
-      table.of.titers[2, ] <- paste(virus.names, sep = "")
+      table.of.titers[1,] <- paste(serum.names, sep = "")
+      table.of.titers[2,] <- paste(virus.names, sep = "")
       
       
       output$print_control_means <- renderText("")
@@ -1371,7 +1403,7 @@ shinyServer(function(input, output, session) {
           
           if (d > 1 &
               length(next.column.plaques.per.sample) != length(plaques.per.sample[d -
-                                                                                  1, ])) {
+                                                                                  1,])) {
             failhere <- TRUE
             output$print_warnings_neut <-
               renderText(
@@ -1381,12 +1413,12 @@ shinyServer(function(input, output, session) {
           }
           
         }
-
+        
         if (failhere == TRUE)
           
           next
         
-        if (length(dilutions)<dim(plaques.per.sample)[1]) {
+        if (length(dilutions) < dim(plaques.per.sample)[1]) {
           output$print_warnings_neut <-
             renderText(
               "The number of dilutions you have in your dilution series is less than the number of dilutions you have indicated in your template.  Please correct this."
@@ -1395,8 +1427,8 @@ shinyServer(function(input, output, session) {
         }
         
         dilutions <- (dilutions[1:dim(plaques.per.sample)[1]])
- 
-  
+        
+        
         plaque.counts <- c(plaques.per.sample)
         
         # dilutions for that titration
@@ -1405,14 +1437,14 @@ shinyServer(function(input, output, session) {
         
         if (logdil[length(logdil)] > logdil[1])
           set.of.dil.values <-
-          exp((seq(
-            log(logdil[1]) - 5, log(logdil)[length(logdil)] + 5, .01
+          10 ^ ((seq(
+            log10(logdil[1]) - 2, log10(logdil)[length(logdil)] + 2, 0.01
           )))
         
         if (logdil[length(logdil)] < logdil[1])
           set.of.dil.values <-
-          exp(rev(seq(
-            log(logdil)[length(logdil)] - 5, log(logdil[1]) + 5, .01
+          10 ^ (rev(seq(
+            log10(logdil)[length(logdil)] - 2, log10(logdil[1]) + 2, 0.01
           )))
         
         M <- NULL
@@ -1431,14 +1463,14 @@ shinyServer(function(input, output, session) {
                   fct = LL.4(fixed = c(NA, bottom.asympt, NA, NA)),
                   na.action = na.omit
               )
-            M <- unlist(test.M.curve["d:(Intercept)"])
+            M <- unlist(test.M.curve$coefficients["d:(Intercept)"])
           }
           if (class(test.M) == "try-error") {
-            M <- median(tail(plaques.per.sample, 2), na.rm = T)
+            M <- median(tail(plaques.per.sample, 3), na.rm = T)
             
           }
           if (exists("M") == FALSE | is.null(M)) {
-            M <- median(tail(plaques.per.sample, 2), na.rm = T)
+            M <- median(tail(plaques.per.sample, 3), na.rm = T)
             
           }
         }
@@ -1481,7 +1513,7 @@ shinyServer(function(input, output, session) {
           bottom <- c()
           
           for (k in 1:length(dilutions)) {
-            paired <- c(plaques.per.sample[k, ])
+            paired <- c(plaques.per.sample[k,])
             top[k] <- max(paired)
             bottom[k] <- min(paired)
           }
@@ -1529,10 +1561,10 @@ shinyServer(function(input, output, session) {
           
           for (k in 1:length(dilutions)) {
             mean.dup[k] <-
-              mean(c(plaques.per.sample[k, ] / M),
+              mean(c(plaques.per.sample[k,] / M),
                    na.rm = T)
             sd.dup[k] <-
-              sd(c(plaques.per.sample[k, ] / M),
+              sd(c(plaques.per.sample[k,] / M),
                  na.rm = T)
           }
           
@@ -1625,72 +1657,50 @@ shinyServer(function(input, output, session) {
                   na.action = na.omit
               )
             
+            suppressWarnings(predicted.titercut <-
+                               (
+                                 predict(
+                                   logisticurve,
+                                   interval = "confidence",
+                                   data.frame(x = set.of.dil.values)
+                                 )
+                               ))
             
-            predicted.titercut <-
-              (predict(
-                logisticurve,
-                interval = "confidence",
-                data.frame(x = set.of.dil.values)
-              ))
-            #       print("pass-3")
-            
-            abs.reduction.at.value.range <-
-              set.of.dil.values[sort(range(unique(
-                which(
-                  round(predicted.titercut, digits = 2) == dil.values,
-                  arr.ind = T
-                )[, "row"]
-              )))]
-            
-            set.of.dil.values.tiny <-
-              seq(
-                round(
-                  min(abs.reduction.at.value.range),
-                  digits = input$sig.figs.dil
-                ),
-                round(
-                  max(abs.reduction.at.value.range),
-                  digits = input$sig.figs.dil
-                ),
-                10 ^ (-input$sig.figs.dil)
-              )
-            #       print("pass-2")
-            
-            predicted.titercut.tiny <-
-              (predict(
-                logisticurve,
-                interval = "confidence",
-                newdata = data.frame(x = set.of.dil.values.tiny)
-              ))
-            #          print("pass-1")
-            #          print(head(predicted.titercut.tiny))
-            
-            if (is.null(dim(predicted.titercut.tiny)))
-              predicted.titercut.tiny <- t(as.matrix(predicted.titercut.tiny))
-            #      print(predicted.titercut.tiny[, "Prediction"])
             
             reduction.at.value <-
-              which(round(predicted.titercut.tiny[, "Prediction"], digits = 2) == dil.values)
+              which(round(predicted.titercut[, "Prediction"], digits = 2) == dil.values)
             
-            #          print("pass0")
-            
-            if (length(reduction.at.value) < 1) {
-              titer <- paste("<",
-                             min(low.titer.limit, upper.titer.limit, na.rm = T),
-                             sep = "")
+            if (length(reduction.at.value) < 1 |
+                sign(logdil[1] - logdil[length(logdil)]) != unname(sign(logisticurve$coefficients["b:(Intercept)"]))) {
+              if (sign(logdil[1] - logdil[length(logdil)]) == -1)
+                titer <- paste("<",
+                               min(c(
+                                 low.titer.limit, upper.titer.limit
+                               ), na.rm = T),
+                               sep = "")
+              if (sign(logdil[1] - logdil[length(logdil)]) == 1)
+                titer <- paste(">",
+                               max(c(
+                                 low.titer.limit, upper.titer.limit
+                               ), na.rm = T),
+                               sep = "")
               table.of.titers[3, i] <- titer
               
             }
             
             
+            
+            
             else {
-              #           print("pass1")
-              titer <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.tiny[, "Prediction"] -
-                                                              dil.values))])
-                      ,
-                      digits =
-                        input$sig.figs.dil)
+              titer <- round(
+                estimate.x.dose.value(
+                  predicted.v = predicted.titercut[, "Prediction"],
+                  dilvalues.v = dil.values,
+                  set.of.dil.values.v = set.of.dil.values
+                ),
+                digits =
+                  input$sig.figs.dil
+              )
               
               if (is.numeric(titer) &
                   titer < min(low.titer.limit, upper.titer.limit, na.rm = T))
@@ -1705,20 +1715,27 @@ shinyServer(function(input, output, session) {
                   paste(">",
                         max(low.titer.limit, upper.titer.limit, na.rm = T),
                         sep = "")
-              #            print("pass2")
+              
               
               table.of.titers[3, i] <- titer
               
               reduction.at.value.low <-
-                which(round(predicted.titercut.tiny[, "Lower"], digits = 2) == dil.values)
+                which(round(predicted.titercut[, "Lower"], digits = 2) == dil.values)
               
               
               if (length(reduction.at.value.low) > 0)
                 table.of.titers[5, i] <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.tiny[, "Lower"] -
-                                                              dil.values))]),
-                      digits =
-                        input$sig.figs.dil)
+                round(
+                  estimate.x.dose.value(
+                    predicted.v = predicted.titercut[, "Lower"],
+                    dilvalues.v =
+                      dil.values,
+                    set.of.dil.values.v =
+                      set.of.dil.values
+                  ),
+                  digits =
+                    input$sig.figs.dil
+                )
               
               if (length(reduction.at.value.low) == 0) {
                 table.of.titers[5, i] <-   "ci too large"
@@ -1727,15 +1744,20 @@ shinyServer(function(input, output, session) {
               #          print("pass3")
               
               reduction.at.value.upper <-
-                which(round(predicted.titercut.tiny[, "Upper"], digits = 2) == dil.values)
+                which(round(predicted.titercut[, "Upper"], digits = 2) == dil.values)
               
               
               if (length(reduction.at.value.upper) > 0)
                 table.of.titers[4, i] <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.tiny[, "Upper"] -
-                                                              dil.values))]),
-                      digits =
-                        input$sig.figs.dil)
+                round(
+                  estimate.x.dose.value(
+                    predicted.v = predicted.titercut[, "Upper"],
+                    dilvalues.v = dil.values,
+                    set.of.dil.values.v = set.of.dil.values
+                  ),
+                  digits =
+                    input$sig.figs.dil
+                )
               
               
               
@@ -1894,54 +1916,48 @@ shinyServer(function(input, output, session) {
                 NIH.curve$coefficients["e:(Intercept)"] <-
                   log.these.dil[length(included.plaques)]
               
-              predicted.titercut.NIH <-
-                (predict(
-                  NIH.curve,
-                  interval = "confidence",
-                  data.frame(x = set.of.dil.values)
-                ))
-              
+              suppressWarnings(predicted.titercut.NIH <-
+                                 (
+                                   predict(
+                                     NIH.curve,
+                                     interval = "confidence",
+                                     data.frame(x = set.of.dil.values)
+                                   )
+                                 ))
               
               reduction.at.value <-
                 which(round(predicted.titercut.NIH[, "Prediction"], digits = 2) == dil.values)
               
-              if (length(reduction.at.value) < 1)
+              if (length(reduction.at.value) < 1 |
+                  sign(logdil[1] - logdil[length(logdil)]) != unname(sign(NIH.curve$coefficients["b:(Intercept)"])))   {
+                if (sign(logdil[1] - logdil[length(logdil)]) == -1)
+                  NIH.titer <- paste("<",
+                                     min(
+                                       c(low.titer.limit, upper.titer.limit),
+                                       na.rm = T
+                                     ),
+                                     sep = "")
+                
+                if (sign(logdil[1] - logdil[length(logdil)]) == 1)
+                  NIH.titer <- paste(">",
+                                     max(
+                                       c(low.titer.limit, upper.titer.limit),
+                                       na.rm = T
+                                     ), sep = "")
+                
                 next
+              }
               
-              
-              abs.reduction.at.value.range <-
-                set.of.dil.values[sort(range(unique(
-                  which(
-                    round(predicted.titercut.NIH, digits = 2) == dil.values,
-                    arr.ind = T
-                  )[, "row"]
-                )))]
-              
-              set.of.dil.values.tiny <-
-                seq(
-                  round(
-                    min(abs.reduction.at.value.range),
-                    digits = input$sig.figs.dil
-                  ),
-                  round(
-                    max(abs.reduction.at.value.range),
-                    digits = input$sig.figs.dil
-                  ),
-                  10 ^ (-input$sig.figs.dil)
-                )
-              
-              
-              predicted.titercut.NIH.tiny <-
-                (predict(
-                  NIH.curve,
-                  interval = "confidence",
-                  newdata = data.frame(x = set.of.dil.values.tiny)
-                ))
               
               NIH.titer <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.NIH.tiny[, "Prediction"] -
-                                                              dil.values))]),
-                      digits = input$sig.figs.dil)
+                round(
+                  estimate.x.dose.value(
+                    predicted.v = predicted.titercut.NIH[, "Prediction"],
+                    dilvalues.v = dil.values,
+                    set.of.dil.values.v = set.of.dil.values
+                  ),
+                  digits = input$sig.figs.dil
+                )
               
               
               
@@ -1965,10 +1981,15 @@ shinyServer(function(input, output, session) {
                 which(round(predicted.titercut.NIH[, "Lower"], digits = 2) == dil.values)
               if (length(reduction.at.value.low) > 0)
                 NIH.titer.confint[2] <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.NIH.tiny[, "Lower"] -
-                                                              dil.values))]),
-                      digits =
-                        input$sig.figs.dil)
+                round(
+                  estimate.x.dose.value(
+                    predicted.v = predicted.titercut.NIH[, "Lower"],
+                    dilvalues.v = dil.values,
+                    set.of.dil.values.v = set.of.dil.values
+                  ),
+                  digits =
+                    input$sig.figs.dil
+                )
               
               if (length(reduction.at.value.low) == 0) {
                 NIH.titer.confint[2] <-   "ci too large"
@@ -1979,10 +2000,15 @@ shinyServer(function(input, output, session) {
               if (length(reduction.at.value.upper) > 0)
                 
                 NIH.titer.confint[1] <-
-                round((set.of.dil.values.tiny[which.min(abs(predicted.titercut.NIH.tiny[, "Upper"] -
-                                                              dil.values))]),
-                      digits =
-                        input$sig.figs.dil)
+                round(
+                  estimate.x.dose.value(
+                    predicted.v = predicted.titercut.NIH[, "Upper"],
+                    dilvalues.v = dil.values,
+                    set.of.dil.values.v = set.of.dil.values
+                  ),
+                  digits =
+                    input$sig.figs.dil
+                )
               
               if (length(reduction.at.value.upper) == 0) {
                 NIH.titer.confint[1] <-   "ci too large"
@@ -2070,7 +2096,6 @@ shinyServer(function(input, output, session) {
           
           
         }
-        
         
       }
       
