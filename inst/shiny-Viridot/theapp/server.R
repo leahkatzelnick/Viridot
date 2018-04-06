@@ -1451,19 +1451,21 @@ shinyServer(function(input, output, session) {
         
         
         if (input$control.well.count == "eachtop") {
-          test.M <-
-            try(drm((plaque.counts / M) ~ logdil,
+
+            test.M <-
+            try(drm((plaque.counts/M) ~ logdil,
                     fct = LL.4(fixed = c(NA, bottom.asympt, NA, NA)),
                     na.action = na.omit
             ),
             silent = T)
+            
           if (class(test.M) != "try-error") {
             test.M.curve <-
               drm((plaque.counts) ~ logdil,
                   fct = LL.4(fixed = c(NA, bottom.asympt, NA, NA)),
                   na.action = na.omit
               )
-            M <- unlist(test.M.curve$coefficients["d:(Intercept)"])
+            M <- unname(test.M.curve$coefficients["d:(Intercept)"])
           }
           if (class(test.M) == "try-error") {
             M <- median(tail(plaques.per.sample, 3), na.rm = T)
@@ -1474,6 +1476,7 @@ shinyServer(function(input, output, session) {
             
           }
         }
+        
         
         if (length(grep(paste(c("D", "C"), collapse = "|"), input$control.well.count)) >
             0) {
@@ -1507,6 +1510,9 @@ shinyServer(function(input, output, session) {
             !is.na(convert.control.well.count.number)) {
           M <- convert.control.well.count.number
         }
+        
+        
+
         
         if (input$plot_duplicates == "polygon") {
           top <- c()
@@ -1668,10 +1674,12 @@ shinyServer(function(input, output, session) {
             
             
             reduction.at.value <-
-              which(round(predicted.titercut[, "Prediction"], digits = 2) == dil.values)
+              which(round(predicted.titercut[, "Prediction"], digits = 1) == dil.values)
             
-            if (length(reduction.at.value) < 1 |
-                sign(logdil[1] - logdil[length(logdil)]) != unname(sign(logisticurve$coefficients["b:(Intercept)"]))) {
+
+            if (length(reduction.at.value) < 1 
+                |sign(logdil[1] - logdil[length(logdil)]) != unname(sign(logisticurve$coefficients["b:(Intercept)"]))
+                ) {
               if (sign(logdil[1] - logdil[length(logdil)]) == -1)
                 titer <- paste("<",
                                min(c(
@@ -1720,7 +1728,7 @@ shinyServer(function(input, output, session) {
               table.of.titers[3, i] <- titer
               
               reduction.at.value.low <-
-                which(round(predicted.titercut[, "Lower"], digits = 2) == dil.values)
+                which(round(predicted.titercut[, "Lower"], digits = 1) == dil.values)
               
               
               if (length(reduction.at.value.low) > 0)
@@ -1744,7 +1752,7 @@ shinyServer(function(input, output, session) {
               #          print("pass3")
               
               reduction.at.value.upper <-
-                which(round(predicted.titercut[, "Upper"], digits = 2) == dil.values)
+                which(round(predicted.titercut[, "Upper"], digits = 1) == dil.values)
               
               
               if (length(reduction.at.value.upper) > 0)
@@ -1926,7 +1934,7 @@ shinyServer(function(input, output, session) {
                                  ))
               
               reduction.at.value <-
-                which(round(predicted.titercut.NIH[, "Prediction"], digits = 2) == dil.values)
+                which(round(predicted.titercut.NIH[, "Prediction"], digits = 1) == dil.values)
               
               if (length(reduction.at.value) < 1 |
                   sign(logdil[1] - logdil[length(logdil)]) != unname(sign(NIH.curve$coefficients["b:(Intercept)"])))   {
@@ -1978,7 +1986,7 @@ shinyServer(function(input, output, session) {
                                                          sep = "")
               
               reduction.at.value.low <-
-                which(round(predicted.titercut.NIH[, "Lower"], digits = 2) == dil.values)
+                which(round(predicted.titercut.NIH[, "Lower"], digits = 1) == dil.values)
               if (length(reduction.at.value.low) > 0)
                 NIH.titer.confint[2] <-
                 round(
@@ -1996,7 +2004,7 @@ shinyServer(function(input, output, session) {
               }
               
               reduction.at.value.upper <-
-                which(round(predicted.titercut.NIH[, "Upper"], digits = 2) == dil.values)
+                which(round(predicted.titercut.NIH[, "Upper"], digits = 1) == dil.values)
               if (length(reduction.at.value.upper) > 0)
                 
                 NIH.titer.confint[1] <-
