@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# April 6, 2018: User interface for Viridot
+# August 24, 2018: User interface for Viridot
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: April 6, 2018",
+    title = "Viridot: August 24, 2018",
     
     tabPanel(
       "Plaque counter",
@@ -188,7 +188,7 @@ shinyUI(
             min = .5,
             max = 3,
             value = .5,
-            step = .5
+            step = .1
           )
         ),
         tags$p("* If you select 'Auto', this variable is set based on your image."),
@@ -821,7 +821,126 @@ shinyUI(
                
                
              )
-           )))
+           ))),
+  
+  tabPanel(
+    "Image formatting",
+
+
+
+    tags$div(
+      title = "Select the plate folders that contain well images you want to trim.",
+      shinyDirButton(
+        'select_plates_image_trimmer',
+        'Directory of images to be trimmed',
+        'Directory of images to be trimmed'
+      )),
+
+        
+    tags$div(
+      title = "Select the well images to trim.",
+      selectInput(
+        "wells_to_trim",
+        "Select the well images to trim",
+        choices =
+          "none",
+        multiple = T
+      )
+    ),
+ 
+    
+    tags$div(
+      title = "What do you want to do?",
+      selectInput(
+        "option_well_trim",
+        "What do you want to do?",
+        choices =
+          c("Trim individual well images",
+            "Cut single large image into individual square wells")
+      )
+    ),
+    
+    
+    
+    tags$div(
+      title = "Select where to save trimmed images.",
+      shinyDirButton(
+        'set_trim_output_directory',
+        'Directory for saving trimmed images',
+        'Directory for saving trimmed images'
+      ),
+      verbatimTextOutput('print_set_trim_output_directory')
+    ),
+    
+    
+    tags$hr(),
+    tags$hr(),
+    tags$hr(),
+    
+    
+    tags$div(
+      title = "If cutting single large image: Print out individual square wells from single large image?",
+      selectInput(
+        "option_print_cut_wells",
+        "Print out individual square wells from single large image?",
+        choices =
+          c("No","Yes"),selected="No"
+      )
+    ),
+    
+ 
+    tags$div(
+      title = "If cutting single large image: How large should each well image be? This parameter sets the size of each image.",
+      numericInput(
+        "dim.well",
+        "How many pixels/well?",
+        350
+      )
+    ),
+    
+    
+    tags$div(
+      title = "If cutting single large image: Set parameters for applying the grid (rows)",
+      numericInput(
+        "grid.x.start",
+        "How far from the left of the image should the grid start?",
+        1
+      )
+    ),
+    
+    
+    tags$div(
+      title = "If cutting single large image: Set parameters for applying the grid (columns)",
+      numericInput(
+        "grid.y.start",
+        "How far from the top of the image should the grid start?",
+        1
+      )
+    ),
+    
+    
+    
+    
+    
+    tags$hr(),
+    tags$hr(),
+    tags$hr(),
+    
+    
+    
+    tags$div(
+      title = "Image dimensions appear here",
+      verbatimTextOutput('print_output_image_dimensions')
+    ),
+    
+    tags$div(title = "Trim your image.",
+             actionButton('submit.trim', 'Trim!')),
+    
+    imageOutput('im.to.trim')  
+    
+    ) # end of tab
+  
+   
   
   )
   )

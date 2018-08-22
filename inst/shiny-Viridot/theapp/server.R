@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# April 6, 2018: Server for the R plaque counter in Shiny
+# August 24, 2018: Server for the R plaque counter in Shiny
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 # for importing/exporting files and saving directory/folder names in shiny
@@ -553,7 +553,9 @@ shinyServer(function(input, output, session) {
             }
             
             
-            
+            if (length(dim(im))<3) satim <- im
+            if (length(dim(im))>=3) {
+              
             if (input$light.setting == "hue")
               satim <- convert.saturation(im, print = "hue")
             if (input$light.setting == "value")
@@ -615,7 +617,7 @@ shinyServer(function(input, output, session) {
                 1 - ((imageData(satim)[, , 2] + imageData(satim)[, , 3]) / 2)
             }
             
-            
+            } 
             
             
             nowhitespace <-
@@ -2326,6 +2328,160 @@ shinyServer(function(input, output, session) {
       renderText(estimated.virus.titer.v)
     
   })
+  
+  
+  #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+  # Based on the directory selected for where the plate folders are, select the plates to trim
+  #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+  
+  
+  shinyDirChoose(
+    input,
+    'select_plates_image_trimmer',
+    roots = volumes,
+    session = session,
+    restrictions = system.file(package = 'base')
+  )
+  
+  #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+  # Based on the plates folders, select the wells to trim
+  #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+  observeEvent(input$select_plates_image_trimmer, {
+    updateSelectInput(session,
+                      inputId = 'wells_to_trim',
+                      choices = c("all", mixedsort(list.files(
+                          parseDirPath(volumes, input$select_plates_image_trimmer)
+                      ))))
+    
+  })
+  
+  
+  shinyDirChoose(
+    input,
+    'set_trim_output_directory',
+    roots = volumes,
+    session = session,
+    restrictions = system.file(package = 'base')
+  )
+  
+  observeEvent(input$set_trim_output_directory, {
+    output$print_set_trim_output_directory <-
+      renderPrint({
+        parseDirPath(volumes, input$set_trim_output_directory)
+      })
+  })
+  
+  
+ 
+  observeEvent(input$submit.trim, {
+    
+  ret.dir.trim <-
+      parseDirPath(volumes, input$select_plates_image_trimmer)
+    
+  
+  ret.dir.trim.output <-
+      parseDirPath(volumes, input$set_trim_output_directory)
+
+  print(ret.dir.trim.output)
+  
+  wells.to.trim <- input$wells_to_trim
+  
+  directions.to.wells.to.trim <-
+    paste(ret.dir.trim, "/", wells.to.trim, sep = "")
+  
+  for (i in 1:length(directions.to.wells.to.trim)) {
+    
+    im.to.trim <- readImage(directions.to.wells.to.trim[i])
+    
+    if (input$option_well_trim=="Trim individual well images") {
+      
+    image.dimensions <- dim(im.to.trim)[1:2]
+    trimmed.image <- im.to.trim[1:min(image.dimensions),1:min(image.dimensions),]
+    
+    image.dimensions.text <- paste(c("Before trimming:",image.dimensions,"\nAfter trimming:",min(image.dimensions),min(image.dimensions)),collapse=" ")
+
+        output$print_output_image_dimensions  <-
+      renderText(image.dimensions.text)
+    
+      image.file.name.trim <-paste(
+      ret.dir.trim.output,"/",
+      sub("^([^.]*).*", "\\1", wells.to.trim[i]),
+             ".jpg",
+              sep = ""
+            )
+      
+      writeImage(trimmed.image, image.file.name.trim,type="jpeg")
+      summary.image.trim <- trimmed.image
+    }
+    
+    if (input$option_well_trim=="Cut single large image into individual square wells") {
+      
+      image.dimensions <- dim(im.to.trim)
+      
+      rowsplits <- seq(input$grid.x.start,image.dimensions[1],input$dim.well)
+      colsplits <- seq(input$grid.y.start,image.dimensions[2],input$dim.well)
+      
+      if (length(which(rowsplits>image.dimensions[1]))>0) rowsplits <- rowsplits[-which(rowsplits>image.dimensions[1])]
+      if (length(which(colsplits>image.dimensions[2]))>0) colsplits <- colsplits[-which(colsplits>image.dimensions[2])]
+      
+ 
+      grid.im <- matrix(0,image.dimensions[1],image.dimensions[2])
+      grid.im[,colsplits] <- 1
+      grid.im[rowsplits,] <- 1
+      
+      
+      if (input$option_print_cut_wells=="Yes") {
+      for (x in 1:(length(rowsplits)-1)) {
+        for (y in 1:(length(colsplits)-1)) {
+
+          if (length(dim(im.to.trim))<3)  trimmed.image <- im.to.trim[rowsplits[x]:rowsplits[x+1],colsplits[y]:colsplits[y+1]]
+          if (length(dim(im.to.trim))>=3)  trimmed.image <- im.to.trim[rowsplits[x]:rowsplits[x+1],colsplits[y]:colsplits[y+1],]
+
+            image.file.name.trim <-paste(
+            ret.dir.trim.output,"/",
+            sub("^([^.]*).*", "\\1", wells.to.trim[i]),"-",x,"-",y,
+            ".jpg",
+            sep = ""
+          )
+            
+          
+  writeImage(trimmed.image, image.file.name.trim,type="jpeg")
+        }
+      }
+      }
+      
+      summary.image.trim <-
+        paintObjects(
+          grid.im,
+          im.to.trim,
+          col = "red",
+          thick = T
+        )
+      
+      image.dimensions.text <- "grid image"
+      
+    }
+    
+    
+  }
+
+  
+  
+  output$im.to.trim <- renderImage({
+    image.file.name.trim <- tempfile(fileext = ".png")
+
+      writeImage(summary.image.trim,  image.file.name.trim)
+    
+    list(src = image.file.name.trim,
+         contentType = "image/png",
+         alt = "This text appears when something is wrong?")
+    
+  }, deleteFile = TRUE)
+  
+  
+  })
+  
+  
   
   
   
