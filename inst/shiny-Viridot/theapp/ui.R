@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# August 24, 2018: User interface for Viridot
+# November 6, 2018: User interface for Viridot
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: August 24, 2018",
+    title = "Viridot: November 6, 2018",
     
     tabPanel(
       "Plaque counter",

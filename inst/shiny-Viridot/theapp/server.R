@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# August 24, 2018: Server for the R plaque counter in Shiny
+# November 6, 2018: Server for the R plaque counter in Shiny
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 # for importing/exporting files and saving directory/folder names in shiny
@@ -167,9 +167,18 @@ shinyServer(function(input, output, session) {
     if (length(df$user_names_output_files) == 0)
       df$user_names_output_files <-
         df$input.user_names_plaque_count_tables
+ 
+    if (length(df$input.plaque.sizes) == 0)
+      df$input.plaque.sizes <- "No"
+    
     
     if (df$input.counter.settings == "Manual")
       df$input.counter.settings <- "User-specified"
+    
+    
+    updateSliderInput(session,
+                      inputId = 'plaque.sizes',
+                      value = df$input.plaque.sizes)
     
     updateSliderInput(session,
                       inputId = 'contrast.background',
@@ -187,7 +196,7 @@ shinyServer(function(input, output, session) {
                       inputId = 'dilation.size',
                       value = df$input.dilation.size)
     updateSliderInput(session,
-                      inputId = 'threshold.plaque.overlap.tolerance',
+                      inputId = 'plaque.overlap.tolerance',
                       value = df$input.plaque.overlap.tolerance)
     updateSliderInput(session,
                       inputId = 'min.pixel.counted',
@@ -321,6 +330,7 @@ shinyServer(function(input, output, session) {
                     value = input$unique.settings.name)
     
     print.settings <-  data.frame(
+      input$plaque.sizes,
       input$contrast.background,
       input$contrast.plaque,
       input$threshold.difference,
@@ -1845,7 +1855,6 @@ shinyServer(function(input, output, session) {
             
           }
         }
-        
         
         
         if (input$NIH.titer.estimation == TRUE) {
