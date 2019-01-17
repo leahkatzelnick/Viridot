@@ -76,13 +76,13 @@ Viridot can be installed in Windows by following these instructions:
 Open RStudio, and in the console, run the following command:
 
 ```
-install.packages("PATH/Viridot", repos NULL, type="source")
+install.packages("PATH/Viridot", repos = NULL, type="source")
 ```
 
 Where PATH corresponds to where the unzipped folder is located on your computer. For example, if the Viridot folder is saved in C:/ , copy the following command into the R console:
 
 ```
-install.packages("C:/Viridot", repos NULL, type="source")
+install.packages("C:/Viridot", repos = NULL, type="source")
 ```
 
 You should now have installed Viridot. To load Viridot in R, open R or RStudio and type:
@@ -117,5 +117,5 @@ Note: When using the drive itself, you need the slash, “C:/” or “R:/”.  
 You may now launch Viridot by typing this command into the RStudio console:
 
 ```
-launch.viridot()
+launchViridot()
 ```
