@@ -107,7 +107,7 @@ volumes <- setVolumes(location="homeDirectoryForWindows")
 Folders inside a drive work fine, too. For example, if you have a folder within the C drive called Experiments you could write:
 
 ```
-volumes <-setVolumes(location="C:/Experiments", name.volumes=("C - PLAQUE COUNTER")
+volumes <- setVolumes(location="C:/Experiments", name.volumes=("C - PLAQUE COUNTER"))
 ```
 
 The names.volumes selection can be whatever you want it displayed as in R, so instead of “R – PLAQUE COUNTER” it could be called “My data”.
