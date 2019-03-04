@@ -11,7 +11,7 @@
 shinyUI(
   navbarPage(
     theme = shinytheme("flatly"),
-    title = "Viridot: November 6, 2018",
+    title = "Viridot: March 4, 2019",
     
     tabPanel(
       "Plaque counter",

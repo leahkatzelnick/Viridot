@@ -1,5 +1,5 @@
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
-# November 6, 2018: Server for the R plaque counter in Shiny
+# March 4, 2019: Server for the R plaque counter in Shiny
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 # for importing/exporting files and saving directory/folder names in shiny
@@ -144,7 +144,8 @@ estimate.x.dose.value <- function(predicted.v,
 #  Shiny server
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 shinyServer(function(input, output, session) {
-  if (!exists("volumes")) {
+ 
+   if (!exists("volumes")) {
     volumes = "~/"
     names(volumes) <- "home"
   }
@@ -160,10 +161,34 @@ shinyServer(function(input, output, session) {
     filetypes = c('csv')
   )
   
+
   observeEvent(input$load_settings, {
-    df <-
-      read.csv(file = as.character(parseFilePaths(volumes, input$load_settings)$datapath[1]))
+
+    err.rt <-
+      try(read.csv(
+        file = as.character(
+          parseFilePaths(volumes, input$load_settings)$datapath[1]
+        )),silent=T)
     
+
+    if (class(err.rt) == "try-error") {
+      output$indicate_load_settings <-
+        renderText("Waiting for you to import your file.")
+    }
+
+    
+    if (class(err.rt) != "try-error") {
+        
+      df <-
+        read.csv(file = as.character(parseFilePaths(volumes, input$load_settings)$datapath[1]))
+    
+    if (is.null(df$input.contrast.background)) {
+    output$indicate_load_settings <-
+      renderText("You have tried to read in a csv file that is in the wrong format (it does not contain a column named contrast.background).")
+    }
+    
+    if (!is.null(df$input.contrast.background)) {
+
     if (length(df$user_names_output_files) == 0)
       df$user_names_output_files <-
         df$input.user_names_plaque_count_tables
@@ -174,7 +199,7 @@ shinyServer(function(input, output, session) {
     
     if (df$input.counter.settings == "Manual")
       df$input.counter.settings <- "User-specified"
-    
+   
     
     updateSliderInput(session,
                       inputId = 'plaque.sizes',
@@ -243,6 +268,8 @@ shinyServer(function(input, output, session) {
     
     output$indicate_load_settings <-
       renderText("Saved parameters imported.")
+    }
+    }
     
   })
   
@@ -265,8 +292,10 @@ shinyServer(function(input, output, session) {
   #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
   # Based on the directory selected for where the plate folders are, select the plates to analyze
   #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+  
   observeEvent(input$set_root_directory, {
-    updateSelectInput(session,
+    
+      updateSelectInput(session,
                       inputId = 'select_plates_plaque_counter',
                       choices = c(mixedsort(list.files(
                         parseDirPath(volumes, input$set_root_directory)
