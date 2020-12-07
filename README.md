@@ -1,6 +1,8 @@
 # Viridot
-An automated virus plaque counter
+An automated virus plaque counter.  
 
+## Citation
+If you like this program and use it in a publication, please site the manuscript describing this program: "Viridot: An automated virus plaque (immunofocus) counter for the measurement of serological neutralizing responses with application to dengue virus" (https://doi.org/10.1371/journal.pntd.0006862). 
 
 ## Viridot installation instructions
 
