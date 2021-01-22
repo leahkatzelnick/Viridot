@@ -45,6 +45,20 @@ require(Viridot)
 launchViridot()
 ```
 
+If you get the error message:
+```
+Error: With R version 3.5 or greater, install Bioconductor packages using 
+BiocManager; see https://bioconductor.org/install
+```
+
+Then you need to install EBImage using the BiocManager.  You can do this by typing the following:
+```
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install(version = "3.12")
+BiocManager::install("EBImage")
+```
+
 To start from the "examples" directory available in Viridot, run the following:
 
 ```
